@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     container_name: laravel-app
+#     volumes:
+#       - .:/var/www
+#     ports:
+#       - "9000:9000"
+#     depends_on:
+#       - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: laravel-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: tugas_akhir
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: yamato123
+      MYSQL_PASSWORD: yamato123
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+
+volumes:
+  mysql-data:

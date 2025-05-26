@@ -1,0 +1,13 @@
+node_modules
+vendor
+.env
+.idea
+.vscode
+*.log
+docker-compose.yml
+phpunit.xml
+.DS_Store
+*.md
+storage/*
+!.gitignore
+.env.testing
