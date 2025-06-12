@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Exception;
+use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
 {
@@ -19,14 +19,18 @@ class RoleController extends Controller
         try {
             $roles = Role::with("permissions")->get();
             return response()->json([
-                "success" => true,
+                "status" => true,
                 "message" => "List Semua Role",
-                "data" => ['Roles' => $roles],
+                "data" => [
+                    'Roles' => $roles,
+                    'total' => $roles->count()
+                ],
             ]);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
-                "success" => false,
+                "status" => false,
                 "message" => "Gagal Mengambil Data Role",
                 "data" => ['Roles' => $roles],
             ], 500);
@@ -66,6 +70,7 @@ class RoleController extends Controller
             ], 201);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Gagal untuk membuat role',
@@ -89,6 +94,7 @@ class RoleController extends Controller
             ], 200);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Gagal Mengambil Role',
@@ -131,9 +137,10 @@ class RoleController extends Controller
             ], 200);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
-               'status' => false,
-               'message' => 'Gagal Mengupdate Role',
+                'status' => false,
+                'message' => 'Gagal Mengupdate Role',
                 'error' => $e->getMessage()
             ], 404);
         }
@@ -147,19 +154,20 @@ class RoleController extends Controller
     {
         //
         try {
-            
+
             $role = Role::findOrFail($id);
             $role->delete();
             return response()->json([
-               'status' => true,
-               'message' => 'Sukses Menghapus Role',
+                'status' => true,
+                'message' => 'Sukses Menghapus Role',
                 'data' => ['role' => $role]
             ], 200);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
-              'status' => false,
-              'message' => 'Gagal Menghapus Role',
+                'status' => false,
+                'message' => 'Gagal Menghapus Role',
                 'error' => $e->getMessage()
             ], 404);
         }

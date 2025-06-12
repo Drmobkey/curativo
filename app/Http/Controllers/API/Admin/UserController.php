@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -14,9 +15,23 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+
         try {
-            $users = User::with("roles")->get();
+            $currentUser = auth()->user();
+            $currentRole = $currentUser->roles->first()->name ?? null;
+            if ($currentRole === 'superadamin') {
+                # code...
+                $users = User::with("roles")->paginate(15);
+            } else {
+                # code...
+                $users = User::with('roles')
+                    ->whereDoesntHave('roles', function ($query) {
+                        $query->where('name', 'admin');
+                    })->paginate(15);
+            }
+
+            
+    
             return response()->json([
                 "status" => true,
                 "message" => "List Semua User",
@@ -24,15 +39,24 @@ class UserController extends Controller
                     'Users' => $users,
                     'total' => $users->count()
                 ],
+                'paginantion' =>[
+                    'total' => $users->total(),
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                    'per_page' => $users->perPage(),
+                    'next_page_url' => $users->nextPageUrl(),
+                    'prev_page_url' => $users->previousPageUrl(),
+                ]
 
-            ],200);
+            ], 200);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
                 "status" => false,
                 "message" => "Gagal Memuat Data",
                 "error" => $e->getMessage(),
-            ],500);
+            ], 500);
         }
     }
 
@@ -41,7 +65,7 @@ class UserController extends Controller
      */
     public function create()
     {
-       
+
     }
 
     /**
@@ -50,11 +74,11 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            $request ->validate([
+            $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
-                'roles'=> 'array',
+                'roles' => 'array',
                 'roles.*' => 'exists:roles,name',
             ]);
 
@@ -73,13 +97,14 @@ class UserController extends Controller
                 "data" => [
                     'user' => $user->load('roles'),
                 ],
-            ],201);
+            ], 201);
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return response()->json([
-                'status'=> false,
-               'message'=> 'Gagal Membuat User',
-               'error'=> $e->getMessage(),
-            ],500);
+                'status' => false,
+                'message' => 'Gagal Membuat User',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -97,13 +122,14 @@ class UserController extends Controller
                 "data" => [
                     'user' => $user,
                 ],
-            ],200);
+            ], 200);
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return response()->json([
                 "status" => false,
                 "message" => "User Tidak Ditemukan",
                 "error" => $e->getMessage(),
-                ],404);
+            ], 404);
         }
     }
 
@@ -147,11 +173,12 @@ class UserController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return response()->json([
-               'status'=> false,
-              'message'=> 'Gagal Memperbarui User',
-               'error'=> $e->getMessage(),
-            ],500);
+                'status' => false,
+                'message' => 'Gagal Memperbarui User',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -167,14 +194,15 @@ class UserController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "User Berhasil Dihapus",
-            ],200);
+            ], 200);
         } catch (\Exception $e) {
             //throw $e;
+            Log::error($e->getMessage());
             return response()->json([
                 "status" => false,
                 "message" => "User Tidak Ditemukan",
                 "error" => $e->getMessage(),
-                ],404);
+            ], 404);
         }
     }
 }

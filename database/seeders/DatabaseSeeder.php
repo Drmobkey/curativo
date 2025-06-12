@@ -16,7 +16,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $this->call(UserSeeder::class);
-        $this->call(InjuryHistorySeeder::class);
+        
+        $this->call([
+            UserSeeder::class,
+            InjuryHistorySeeder::class,
+            CategorySeeder::class,
+            TagsSeeder::class,
+            ArticleSeeder::class,
+        ]);
     }
 }

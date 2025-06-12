@@ -6,37 +6,39 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
 
-class InjuryHistory extends Model
+class Article extends Model
 {
-    use HasFactory,HasRoles;  // Remove HasUuids
+    //
 
-    protected $table = "InjuryHistory";
+    use HasFactory,HasRoles;
+    protected $table = "articles";
     protected $fillable = [
-        'user_id',
-        'label',
+        'title',
+        'slug',
+        'content',
         'image',
-        'detected_at',
-        'notes',
-        'location',
+        'status',
         'created_by',
         'updated_by'
     ];
 
-    protected $casts = [
-        'detected_at' => 'datetime',
-    ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+        
     }
     public function editor()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'article_categories');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tags::class, 'article_tags','article_id','tag_id');
     }
 }

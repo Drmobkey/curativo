@@ -5,7 +5,8 @@ namespace App\Http\Controllers\API\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
-use Exception;
+use Illuminate\Support\Facades\Log;
+
 class PermissionController extends Controller
 {
     /**
@@ -25,6 +26,7 @@ class PermissionController extends Controller
             ], 200);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Gagal memuat data permission',
@@ -62,6 +64,7 @@ class PermissionController extends Controller
             ], 201);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Permission gagal ditambahkan',
@@ -85,6 +88,7 @@ class PermissionController extends Controller
             ], 200);
         } catch (\Exception $e) {
             //throw $th;
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Permission gagal ditampilkan',
@@ -119,6 +123,7 @@ class PermissionController extends Controller
                 'data' => ['permission' => $permission]
             ], 200);
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Permission gagal diupdate',

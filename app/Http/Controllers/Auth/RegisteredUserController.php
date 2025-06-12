@@ -3,26 +3,24 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RegisterMail;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request): Response
+    public function store(Request $request)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -32,10 +30,27 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->string('password')),
         ]);
 
-        event(new Registered($user));
+        $user->assignRole('user');
 
+        event(new Registered($user));
         Auth::login($user);
 
-        return response()->noContent();
+        // Buat link verifikasi email manual (gunakan signed route jika perlu)
+        // $link = URL::temporarySignedRoute(
+        //     'verification.verify',
+        //     now()->addMinutes(60),
+        //     ['id' => $user->id, 'hash' => sha1($user->email)]
+        // );
+
+        $link = "http://curativo_api.test/api/verification/". $user->id;
+        // Kirim email
+        Mail::to($user->email)->send(new RegisterMail($link));
+
+        return response()->json([
+            'message' => 'User registered successfully. Please check your email for verification.'
+        ], 201);
     }
 }
+
+// return response()->noContent();
+
