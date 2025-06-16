@@ -121,10 +121,10 @@ class InjuryHistoryAdminController extends Controller
                 'image' => 'nullable|string',
                 'detected_at' => 'nullable|date',
                 'notes' => 'nullable|string',
-                'location' => 'nullbale|string',
-                'updated_by' => auth()->user()->id,
+                'location' => 'nullable|string',
             ]);
 
+            $validated['updated_by'] = auth()->user()->id;
             $histories = InjuryHistory::findOrFail($id);
             $histories->update($validated);
 
@@ -156,8 +156,7 @@ class InjuryHistoryAdminController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => '',
-                'data' => $histories
+                'message' => 'Berhasil menghapus data',
             ], 200);
 
         } catch (\Exception $e) {

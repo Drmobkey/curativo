@@ -27,7 +27,7 @@ Route::get('/verification/{id}', function($id) {
 
 Route::middleware(['auth:sanctum', 'role:user'])->prefix('user')->group(function () {
     Route::apiResource('/injury-history', InjuryHistoryController::class);
-    Route::prefix('Articles')->group(function () {
+    Route::prefix('articles')->group(function () {
         Route::get('/', [ArticleAdminController::class, 'index']);
         Route::get('/{id}', [ArticleAdminController::class, 'show']);
     });
@@ -37,9 +37,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('/users', UserController::class);
     Route::apiResource('/injury-history', InjuryHistoryController::class);
     Route::apiResource('/injury-history-admin', InjuryHistoryAdminController::class);
-    Route::apiResource('/Articles', ArticleAdminController::class);
-    Route::apiResource('/Category', CategoryController::class);
-    Route::apiResource('/Tags', TagsController::class);
+    Route::apiResource('/articles', ArticleAdminController::class);
+    Route::apiResource('/category', CategoryController::class);
+    Route::apiResource('/tags', TagsController::class);
 });
 
 Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->group(function () {

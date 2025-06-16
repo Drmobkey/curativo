@@ -17,7 +17,7 @@ class RoleController extends Controller
     {
         //
         try {
-            $roles = Role::with("permissions")->get();
+            $roles = Role::get();
             return response()->json([
                 "status" => true,
                 "message" => "List Semua Role",
@@ -54,19 +54,15 @@ class RoleController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|unique:roles,name',
-                'permissions' => 'required|array',
+                'guard_name' => 'web',
             ]);
 
             $role = Role::create(['name' => $request->name]);
 
-            if ($request->has('permissions')) {
-                $role->syncPermissions($request->permissions);
-            }
-
             return response()->json([
                 'status' => true,
                 'message' => 'Sukses Membuat Role',
-                'data' => ['role' => $role->load('permissions')]
+                'data' => ['role'=> $role],
             ], 201);
         } catch (\Exception $e) {
             //throw $th;
@@ -120,20 +116,15 @@ class RoleController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|unique:roles,name,' . $id,
-                'permissions' => 'array',
             ]);
 
             $role = Role::findOrFail($id);
             $role->update(['name' => $request->name]);
 
-            if ($request->has('permissions')) {
-                $role->syncPermissions($request->permissions);
-            }
-
             return response()->json([
                 'status' => true,
                 'message' => 'Sukses Mengupdate Role',
-                'data' => ['role' => $role->load('permissions')]
+                'data' => ['role' => $role]
             ], 200);
         } catch (\Exception $e) {
             //throw $th;
@@ -152,24 +143,24 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
         try {
+        $role = Role::findOrFail($id);
+        $role->delete();
 
-            $role = Role::findOrFail($id);
-            $role->delete();
-            return response()->json([
-                'status' => true,
-                'message' => 'Sukses Menghapus Role',
-                'data' => ['role' => $role]
-            ], 200);
-        } catch (\Exception $e) {
-            //throw $th;
-            Log::error($e->getMessage());
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal Menghapus Role',
-                'error' => $e->getMessage()
-            ], 404);
-        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Sukses Menghapus Role',
+            'data' => ['role' => $role]
+        ], 200);
+
+    } catch (\Exception $e) {
+        Log::error('Gagal hapus role: ' . $e->getMessage());
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Gagal Menghapus Role',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 }

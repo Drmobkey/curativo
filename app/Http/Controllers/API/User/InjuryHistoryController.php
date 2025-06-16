@@ -19,21 +19,29 @@ class InjuryHistoryController extends Controller
         //
         try {
 
-            $histories = InjuryHistory::where("user_id", $request->user()->id)
+            $history = InjuryHistory::where("user_id", $request->user()->id)
                 ->latest()
                 ->paginate(15);
 
             return response()->json([
                 'status' => true,
                 'message' => ' Riwayat Luka Berhasil Diambil',
-                'data' => $histories->items(),
+                'data' => collect($history->items())->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'label' => $item->label,
+                        'location' => $item->location,
+                        'notes' => $item->notes,
+                        'detected_at' => $item->detected_at,
+                    ];
+                }),
                 'pagination' => [
-                    'total' => $histories->total(),
-                    'current_page' => $histories->currentPage(),
-                    'last_page' => $histories->lastPage(),
-                    'per_page' => $histories->perPage(),
-                    'next_page_url' => $histories->nextPageUrl(),
-                    'prev_page_url' => $histories->previousPageUrl(),
+                    'total' => $history->total(),
+                    'current_page' => $history->currentPage(),
+                    'last_page' => $history->lastPage(),
+                    'per_page' => $history->perPage(),
+                    'next_page_url' => $history->nextPageUrl(),
+                    'prev_page_url' => $history->previousPageUrl(),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -69,16 +77,24 @@ class InjuryHistoryController extends Controller
                 'image' => 'nullable|string',
                 'detected_at' => 'required|date',
                 'notes' => 'nullable|string',
-                'location' => 'nullbale|string',
-                'created_by' => auth()->user()->id,
-                'updated_by' => auth()->user()->id,
+                'location' => 'nullable|string',
             ]);
             $validated['user_id'] = $request->user()->id;
+            $validated['created_by'] = auth()->user()->id;
+            $validated['updated_by'] = auth()->user()->id;
+
+            $history = InjuryHistory::create($validated);
 
             return response()->json([
                 'status' => true,
                 'message' => ' riwayat luka sukses dibuat',
-                'data' => $validated,
+                'data' => [
+                    'id' => $history->id,
+                    'label' => $history->label,
+                    'location' => $history->location,
+                    'notes' => $history->notes,
+                    'detected_at' => $history->detected_at,
+                ],
             ], 201);
         } catch (\Exception $e) {
             Log::error('Store Error' . $e->getMessage());
@@ -87,7 +103,7 @@ class InjuryHistoryController extends Controller
                 'status' => false,
                 'message' => 'Gagal Menambahkan Data',
                 'error' => $e->getMessage(),
-            ], 404);
+            ], 500);
         }
 
     }
@@ -99,19 +115,26 @@ class InjuryHistoryController extends Controller
     {
         //
         try {
-            $histories = InjuryHistory::where('user_id', $request->user()->id)->findOrFail($id);
+            $history = InjuryHistory::where('user_id', $request->user()->id)->findOrFail($id);
 
             return response()->json([
                 'status' => true,
                 'message' => 'Riwayat Luka Berhasil Diambil',
-                'data' => $histories,
-            ]);
+                'data' =>
+                    [
+                        'id' => $history->id,
+                        'label' => $history->label,
+                        'location' => $history->location,
+                        'notes' => $history->notes,
+                        'detected_at' => $history->detected_at,
+                    ],
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Show Error' . $e->getMessage());
 
             return response()->json([
                 'status' => false,
-                'message' => '',
+                'message' => 'Data tidak ditemukan',
                 'error' => $e->getMessage(),
             ], 404);
         }
@@ -135,21 +158,28 @@ class InjuryHistoryController extends Controller
     {
         //
         try {
-            $histories = InjuryHistory::where('user_id', $request->user()->id)->findOrFail($id);
+            $history = InjuryHistory::where('user_id', $request->user()->id)->findOrFail($id);
             $validated = $request->validate([
                 'label' => 'nullable|string',
                 'image' => 'nullable|string',
                 'detected_at' => 'nullable|date',
                 'notes' => 'nullable|string',
-                'location' => 'nullbale|string',
-                'updated_by' => auth()->user()->id,
+                'location' => 'nullable|string',
             ]);
 
-            $histories->update($validated);
+            $validated['updated_by'] = auth()->user()->id;
+            $history->update($validated);
+
             return response()->json([
                 'status' => 'success',
                 'message' => ' Riwayat Luka Sukses Di Updated',
-                'data' => $histories
+                'data' => [
+                    'id'=> $history->id,
+                    'label'=> $history->label,
+                    'location'=> $history->location,
+                    'notes'=> $history->notes,
+                    'detected_at'=> $history->detected_at
+                ]
             ]);
         } catch (\Exception $e) {
             //throw $th;
@@ -167,27 +197,26 @@ class InjuryHistoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-        try {
-            $histories = InjuryHistory::where('user_id', $id)->findOrFail($id);
-            $histories->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => ' Riwayat Luka Berhasil Dihapus',
-                'data' => $histories
-            ]);
-        } catch (\Exception $e) {
-            //throw $th;
-            Log::error('Delete Error' . $e->getMessage());
+    public function destroy(string $id, Request $request)
+{
+    try {
+        $history = InjuryHistory::where('user_id', $request->user()->id)->findOrFail($id);
+        $history->delete();
 
-            return response()->json([
-                'status' => false,
-                'message' => ' Gagal Menghapus Riwayat Luka',
-                'error' => $e->getMessage(),
-            ], 500);
+        return response()->json([
+            'status' => true,
+            'message' => 'Riwayat Luka Berhasil Dihapus',
+            'data' => null
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Delete Error: ' . $e->getMessage());
 
-        }
+        return response()->json([
+            'status' => false,
+            'message' => 'Gagal Menghapus Riwayat Luka',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 }

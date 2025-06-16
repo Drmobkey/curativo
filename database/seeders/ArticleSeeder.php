@@ -16,7 +16,7 @@ class ArticleSeeder extends Seeder
     public function run(): void
     {
         //
-        Article::factory(20)->create()->each(function ($article) {
+        Article::factory(10)->create()->each(function ($article) {
             // Attach 1-3 random categories to each article
             $categories = Category::inRandomOrder()->limit(rand(1, 3))->get();
             $article->categories()->attach($categories->pluck('id'));

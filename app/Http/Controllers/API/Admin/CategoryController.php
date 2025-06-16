@@ -19,20 +19,22 @@ class CategoryController extends Controller
     {
         //
      try {
-        $categories = Category::with(['creator', 'updater', 'article'])
+        $category = Category::with(['creator', 'editor', 'article'])
             ->orderBy('updated_at', 'desc')
             ->paginate(15);
+
+        
         return response()->json([
             'status' => true,
             'message' => 'Category sukses ditampilkan',
-            'data' => $categories,
+            'data' => $category,
             'pagination' => [
-                'total' => $categories->total(),
-                'per_page' => $categories->perPage(),
-                'current_page' => $categories->currentPage(),
-                'last_page' => $categories->lastPage(),
-                'next_page_url' => $categories->nextPageUrl(),
-                'prev_page_url' => $categories->previousPageUrl(),
+                'total' => $category->total(),
+                'per_page' => $category->perPage(),
+                'current_page' => $category->currentPage(),
+                'last_page' => $category->lastPage(),
+                'next_page_url' => $category->nextPageUrl(),
+                'prev_page_url' => $category->previousPageUrl(),
             ],
         ], 201);
      } catch (\Exception $e) {
@@ -41,7 +43,6 @@ class CategoryController extends Controller
         return response()->json([
            'status' => false,
            'message' => 'Terjadi kesalahan saat memuat category',
-            'data' => $categories,
             'error' => $e->getMessage()
         ], 500);
      }   
@@ -85,7 +86,6 @@ class CategoryController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Terjadi kesalahan saat membuat category',
-                'data' => $category,
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -101,7 +101,7 @@ class CategoryController extends Controller
     {
         //
         try {
-            $category = Category::with(['creator', 'updater', 'article'])->findOrFail($id);
+            $category = Category::with(['creator', 'editor', 'article'])->findOrFail($id);
             return response()->json([
                 'status' => true,
                 'message' => 'Category sukses ditampilkan',
@@ -113,7 +113,6 @@ class CategoryController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Terjadi kesalahan saat membuat category',
-                'data' => $category,
                 'error' => $e->getMessage()
             ], 404);
         }
@@ -155,7 +154,6 @@ class CategoryController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Terjadi kesalahan saat membuat category',
-                'data' => $category,
                 'error' => $e->getMessage()
             ], 404);
         }

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Carbon;
 
 class UserController extends Controller
 {
@@ -15,23 +17,42 @@ class UserController extends Controller
      */
     public function index()
     {
-
         try {
             $currentUser = auth()->user();
             $currentRole = $currentUser->roles->first()->name ?? null;
-            if ($currentRole === 'superadamin') {
-                # code...
-                $users = User::with("roles")->paginate(15);
+
+            // Ambil filter dari query parameter
+            $filterRole = request()->query('role');
+
+            // Validasi: hanya superadmin yang bisa pakai filter
+            if ($currentRole === 'superadmin') {
+
+                // Validasi isi filter role
+                $allowedRoles = ['superadmin', 'admin', 'user'];
+                if ($filterRole && !in_array($filterRole, $allowedRoles)) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "Role filter tidak valid. Gunakan: superadmin, admin, atau user.",
+                    ], 400);
+                }
+
+                // Jika valid, lanjutkan query
+                $users = User::with('roles')
+                    ->when($filterRole, function ($query) use ($filterRole) {
+                        $query->whereHas('roles', function ($q) use ($filterRole) {
+                            $q->where('name', $filterRole);
+                        });
+                    })
+                    ->paginate(15);
             } else {
-                # code...
+                // Selain superadmin tidak boleh lihat admin
                 $users = User::with('roles')
                     ->whereDoesntHave('roles', function ($query) {
-                        $query->where('name', 'admin');
-                    })->paginate(15);
+                        $query->where('name', 'superadmin');
+                    })
+                    ->paginate(15);
             }
 
-            
-    
             return response()->json([
                 "status" => true,
                 "message" => "List Semua User",
@@ -39,7 +60,7 @@ class UserController extends Controller
                     'Users' => $users,
                     'total' => $users->count()
                 ],
-                'paginantion' =>[
+                'pagination' => [
                     'total' => $users->total(),
                     'current_page' => $users->currentPage(),
                     'last_page' => $users->lastPage(),
@@ -50,7 +71,6 @@ class UserController extends Controller
 
             ], 200);
         } catch (\Exception $e) {
-            //throw $th;
             Log::error($e->getMessage());
             return response()->json([
                 "status" => false,
@@ -59,6 +79,7 @@ class UserController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -76,21 +97,44 @@ class UserController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8',
-                'roles' => 'array',
+                'roles' => 'nullable|array',
                 'roles.*' => 'exists:roles,name',
             ]);
+
+            $currentUser = auth()->user();
+            $currentRole = $currentUser->roles->first()->name ?? null;
+
+            if ($currentRole === 'admin') {
+                $invalidRoles = collect($request->roles)->filter(function ($role) {
+                    return $role !== 'user';
+                });
+
+                if ($invalidRoles->isNotEmpty()) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Admin hanya bisa menetapkan role "user"',
+                    ], 403);
+                }
+            }
+
+
+            DB::beginTransaction();
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => bcrypt($request->password),
+                'password' => Hash::make($request->password),
+                'email_verified_at' => Carbon::now(),
             ]);
 
-            if ($request->has('roles')) {
+            if ($request->filled('roles')) {
                 $user->assignRole($request->roles);
             }
+
+            DB::commit();
+
             return response()->json([
                 "status" => true,
                 "message" => "User Berhasil Dibuat",
@@ -98,13 +142,14 @@ class UserController extends Controller
                     'user' => $user->load('roles'),
                 ],
             ], 201);
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
                 'status' => false,
                 'message' => 'Gagal Membuat User',
                 'error' => $e->getMessage(),
-            ], 500);
+            ], 404);
         }
     }
 
@@ -115,14 +160,41 @@ class UserController extends Controller
     {
         //
         try {
+            $currentUser = auth()->user();
+            $currentRole = $currentUser->roles->first()->name ?? null;
+
             $user = User::with('roles')->findOrFail($id);
-            return response()->json([
-                "status" => true,
-                "message" => "Detail User",
-                "data" => [
-                    'user' => $user,
-                ],
-            ], 200);
+
+            $targetRole = $user->roles->first()->name ?? null;
+
+            if ($currentRole === 'superadmin') {
+                return response()->json([
+                    "status" => true,
+                    "message" => "Detail User",
+                    "data" => [
+                        'user' => $user,
+                    ],
+                ], 200);
+            }
+
+            if ($currentRole === 'admin') {
+                // Admin hanya bisa lihat admin dan user
+                if (in_array($targetRole, ['admin', 'user'])) {
+                    return response()->json([
+                        "status" => true,
+                        "message" => "Detail User",
+                        "data" => [
+                            'user' => $user,
+                        ],
+                    ], 200);
+                } else {
+                    return response()->json([
+                        "status" => false,
+                        "message" => "Anda tidak memiliki akses untuk melihat user ini",
+                    ], 403);
+                }
+            }
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return response()->json([
@@ -147,7 +219,20 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $user = User::findOrFail($id);
+            $currentUser = auth()->user();
+            $currentRole = $currentUser->roles->first()->name ?? null;
+
+            $user = User::with('roles')->findOrFail($id);
+            $targetRole = $user->roles->first()->name ?? null;
+
+            // Cek hak akses
+            if ($currentRole === 'admin' && in_array($targetRole, ['admin', 'superadmin'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Anda tidak memiliki izin untuk memperbarui user ini',
+                ], 403);
+            }
+
             $request->validate([
                 'name' => 'string|max:255',
                 'email' => 'string|email|max:255|unique:users,email,' . $user->id,
@@ -155,15 +240,26 @@ class UserController extends Controller
                 'roles' => 'array',
                 'roles.*' => 'exists:roles,name',
             ]);
+
             $updateData = $request->only(['name', 'email']);
             if ($request->filled('password')) {
                 $updateData['password'] = Hash::make($request->password);
             }
 
             $user->update($updateData);
+
+            // Hanya superadmin yang bisa ubah role
             if ($request->has('roles')) {
-                $user->syncRoles($request->roles);
+                if ($currentRole === 'superadmin') {
+                    $user->syncRoles($request->roles);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Hanya superadmin yang dapat mengubah peran (role)',
+                    ], 403);
+                }
             }
+
             return response()->json([
                 "status" => true,
                 "message" => "User Berhasil Diperbarui",
@@ -182,27 +278,42 @@ class UserController extends Controller
         }
     }
 
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
         try {
-            $user = User::findOrFail($id);
+            $currentUser = auth()->user();
+            $currentRole = $currentUser->roles->first()->name ?? null;
+
+            $user = User::with('roles')->findOrFail($id);
+            $targetRole = $user->roles->first()->name ?? null;
+
+            // Cek hak akses admin
+            if ($currentRole === 'admin' && in_array($targetRole, ['admin', 'superadmin'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Anda tidak memiliki izin untuk menghapus user ini',
+                ], 403);
+            }
+
             $user->delete();
+
             return response()->json([
                 "status" => true,
                 "message" => "User Berhasil Dihapus",
             ], 200);
+
         } catch (\Exception $e) {
-            //throw $e;
             Log::error($e->getMessage());
             return response()->json([
                 "status" => false,
-                "message" => "User Tidak Ditemukan",
+                "message" => "User Tidak Ditemukan atau Terjadi Kesalahan",
                 "error" => $e->getMessage(),
             ], 404);
         }
     }
+
 }

@@ -16,7 +16,7 @@ class Tags extends Model
         'slug',
         'status',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
     public function creator()
     {
@@ -30,7 +30,7 @@ class Tags extends Model
 
     public function tags()
     {
-        return $this->belongsToMany(Article::class, 'article_tags');
+        return $this->belongsToMany(Article::class, 'article_tags','article_id','tag_id');
     }
     
 }

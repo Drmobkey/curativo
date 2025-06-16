@@ -20,21 +20,6 @@ class UserSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $userRole = Role::firstOrCreate(['name' => 'user']);
 
-        // 2. Buat Permission
-        $permissions = [
-            'add_user',
-            'edit_user',
-            'get_user',
-            'delete_user'
-        ];
-
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm]);
-        }
-
-        // 3. Beri semua permission ke superadmin
-        $superadminRole->givePermissionTo($permissions);
-
         // 4. Buat 15 User dengan Factory
         $users = User::factory(15)->create();
 
