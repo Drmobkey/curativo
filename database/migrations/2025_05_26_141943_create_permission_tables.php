@@ -75,7 +75,8 @@ return new class extends Migration
             $table->unsignedBigInteger($pivotRole);
 
             $table->string('model_type');
-            $table->unsignedBigInteger($columnNames['model_morph_key']);
+            // In both model_has_permissions and model_has_roles table definitions:
+            $table->uuid($columnNames['model_morph_key']); // instead of unsignedBigInteger
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
 
             $table->foreign($pivotRole)

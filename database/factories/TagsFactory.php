@@ -25,9 +25,9 @@ class TagsFactory extends Factory
         $name = $faker->unique()->word();
         $user = User::inRandomOrder()->first()??User::factory()->create();
         return [
-            //
-            'name'=> $name,
-            'slug'=> Str::slug($name),
+            'id' => (string) Str::uuid(),
+            'name' => $name = fake()->unique()->word(),
+            'slug' => $name,
             'created_by'=> $user->id,
             'updated_by'=> $user->id,
             'created_at'=> now(),

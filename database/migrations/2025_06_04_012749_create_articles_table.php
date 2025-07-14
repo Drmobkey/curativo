@@ -12,14 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('articles', function (Blueprint $table) {
-            $table->id();    
+            $table->uuid('id')->primary();    
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('content');
             $table->string('image')->nullable();
             $table->string('status')->default('draft');
-            $table->foreignId('created_by')->constrained('users');
-            $table->foreignId('updated_by')->constrained('users');
+            $table->uuid('created_by');
+            $table->uuid('updated_by');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('updated_by')->references('id')->on('users')->onDelete('cascade');
             $table->integer('views')->default(0);
             $table->timestamps();
         });

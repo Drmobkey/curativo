@@ -18,6 +18,9 @@ class Tags extends Model
         'created_by',
         'updated_by',
     ];
+
+    protected $keyType = 'string';
+    public $incrementing = false;
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -27,8 +30,7 @@ class Tags extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-
-    public function tags()
+        public function tags()
     {
         return $this->belongsToMany(Article::class, 'article_tags','article_id','tag_id');
     }

@@ -27,14 +27,13 @@ class CategoryFactory extends Factory
         $name = $faker->unique()->word();
         $user = User::inRandomOrder()->first()??User::factory()->create();
         return [
-            //
+            'id' => Str::uuid(),
             'name'=> $name,
             'slug'=> Str::slug($name),
             'created_by'=> $user->id,
             'updated_by'=> $user->id,
             'created_at'=> now(),
             'updated_at'=> now(),
-            
         ];
     }
 }

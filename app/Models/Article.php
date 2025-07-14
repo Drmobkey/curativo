@@ -21,7 +21,8 @@ class Article extends Model
         'created_by',
         'updated_by'
     ];
-
+    protected $keyType = 'string';
+    public $incrementing = false;
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

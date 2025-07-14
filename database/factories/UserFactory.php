@@ -13,13 +13,15 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
-        // Set faker locale ke Indonesia
         $faker = FakerFactory::create('id_ID');
-
         return [
+            'id' => Str::uuid(),
             'name' => $faker->name(),
             'email' => $faker->unique()->safeEmail(),
-            'password' => bcrypt('password123'), // password default
+            'email_verified_at' => now(),
+            'password' => bcrypt('password123'),
+            'jenis_kelamin' => $faker->randomElement(['Laki-laki', 'Perempuan']),
+            'no_telp' => $faker->phoneNumber(),
         ];
     }
 

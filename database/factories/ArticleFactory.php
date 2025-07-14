@@ -26,16 +26,7 @@ class ArticleFactory extends Factory
         $User = User::inRandomOrder()->first()??User::factory()->create();
         $title = $faker->sentence();
         return [
-            // 'title' => $title,
-            // 'slug'=> Str::slug($title),
-            // 'content' => $faker->paragraph(3, true),
-            // 'image' =>$faker->imageUrl(),
-            // 'status' => $faker->randomElement(['published', 'draft']),
-            // 'created_by' => $User->id,
-            // 'updated_by' => $User->id,
-            // 'created_at' => now(),
-            // 'updated_at' => now(),
-            //
+                'id' => Str::uuid(),
                 'title' => $title,
                 'slug' => Str::slug($title),
                 'content' => $faker->paragraph(3, true),

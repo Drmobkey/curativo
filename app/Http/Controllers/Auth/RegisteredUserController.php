@@ -22,12 +22,17 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'no_telp' => 'nullable|string|max:20',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->string('password')),
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'no_telp' => $request->no_telp,
+            'email_verified_at' => now(), 
         ]);
 
         $user->assignRole('user');
@@ -42,13 +47,13 @@ class RegisteredUserController extends Controller
         //     ['id' => $user->id, 'hash' => sha1($user->email)]
         // );
 
-        $link = "http://curativo_api.test/api/verification/". $user->id;
-        // Kirim email
-        Mail::to($user->email)->send(new RegisterMail($link));
+        // $link = "http://curativo_api.test/api/verification/". $user->id;
+        // // Kirim email
+        // Mail::to($user->email)->send(new RegisterMail($link));
 
-        return response()->json([
-            'message' => 'User registered successfully. Please check your email for verification.'
-        ], 201);
+        // return response()->json([
+        //     'message' => 'User registered successfully. Please check your email for verification.'
+        // ], 201);
     }
 }
 

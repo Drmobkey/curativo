@@ -26,6 +26,8 @@ class InjuryHistory extends Model
         'detected_at' => 'datetime',
     ];
 
+    protected $keyType = 'string';
+    public $incrementing = false;
     public function user()
     {
         return $this->belongsTo(User::class);

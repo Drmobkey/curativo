@@ -8,9 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 
-class User extends Authenticatable implements MustVerifyEmail
+
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasRoles,HasFactory, Notifiable,HasApiTokens;
@@ -23,7 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $table = "users";
     protected $fillable = [
-        'name','email','password','email_verified_at'
+        'name','email','password','email_verified_at','jenis_kelamin','no_telp'
     ];
 
     /**
@@ -48,4 +50,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected static function boot()
+{
+    parent::boot();
+
+    static::creating(function ($model) {
+        if (!$model->getKey()) {
+            $model->{$model->getKeyName()} = (string) Str::uuid();
+        }
+    });
+}
 }

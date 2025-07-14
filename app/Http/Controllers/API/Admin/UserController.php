@@ -99,6 +99,8 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8',
+                'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+                'no_telp' => 'nullable|string|max:20',
                 'roles' => 'nullable|array',
                 'roles.*' => 'exists:roles,name',
             ]);
@@ -126,6 +128,8 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'no_telp' => $request->no_telp,
                 'email_verified_at' => Carbon::now(),
             ]);
 
@@ -201,7 +205,7 @@ class UserController extends Controller
                 "status" => false,
                 "message" => "User Tidak Ditemukan",
                 "error" => $e->getMessage(),
-            ], 404);
+            ], 500);
         }
     }
 
@@ -237,11 +241,13 @@ class UserController extends Controller
                 'name' => 'string|max:255',
                 'email' => 'string|email|max:255|unique:users,email,' . $user->id,
                 'password' => 'nullable|string|min:8',
+                'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+                'no_telp' => 'nullable|string|max:20',
                 'roles' => 'array',
                 'roles.*' => 'exists:roles,name',
             ]);
 
-            $updateData = $request->only(['name', 'email']);
+            $updateData = $request->only(['name', 'email','jenis_kelamin', 'no_telp']);
             if ($request->filled('password')) {
                 $updateData['password'] = Hash::make($request->password);
             }

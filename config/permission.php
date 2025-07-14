@@ -94,6 +94,8 @@ return [
          */
 
         'team_foreign_key' => 'team_id',
+        'teams' => false,
+        'uuid' => true,
     ],
 
     /*

@@ -6,6 +6,7 @@ use App\Models\InjuryHistory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Faker\Factory as FakerFactory;
+use Illuminate\Support\Str;
 
 class InjuryHistoryFactory extends Factory
 {
@@ -21,6 +22,7 @@ class InjuryHistoryFactory extends Factory
         }
 
         return [
+            'id' => Str::uuid(),
             'user_id' => $user->id,
             'label' => $faker->word(), 
             'image' => $this->faker->imageUrl(),
