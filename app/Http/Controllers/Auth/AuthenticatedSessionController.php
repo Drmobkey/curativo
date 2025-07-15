@@ -20,7 +20,16 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($data)) {
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json(['token' => $token]);
+            return response()->json([
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->getRoleNames()->first(), // jika pakai Spatie Role
+                ],
+            ]);
+
             # code...
         }
 

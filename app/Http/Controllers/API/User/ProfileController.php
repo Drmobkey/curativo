@@ -27,7 +27,13 @@ class ProfileController extends Controller
             return response()->json([
                 "status" => true,
                 "message" => "Profil user berhasil dimuat",
-                "data" => $user
+                "data" => [
+                    "name" -> $user->name,
+                    "email" -> $user->email,
+                    "jenis_kelamin" => $user->jenis_kelamin,
+                    "no_telp" => $user->no_telp,
+                    "tanggal_lahir" => $user->tanggal_lahir,
+                ]
             ], 200);
 
         } catch (\Exception $e) {
@@ -68,12 +74,12 @@ class ProfileController extends Controller
             $request->validate([
                 'name' => 'string|max:255',
                 'email' => 'string|email|max:255|unique:users,email,' . $user->id,
-                'password' => 'nullable|string|min:8',
                 'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
                 'no_telp' => 'nullable|string|max:20',
+                'tanggal_lahir' => 'nullable|date'
             ]);
 
-            $updateData = $request->only(['name', 'email', 'jenis_kelamin', 'no_telp']);
+            $updateData = $request->only(['name', 'email', 'jenis_kelamin', 'no_telp','tanggal_lahir']);
             if ($request->filled('password')) {
                 $updateData['password'] = Hash::make($request->password);
             }

@@ -101,6 +101,7 @@ class UserController extends Controller
                 'password' => 'required|string|min:8',
                 'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
                 'no_telp' => 'nullable|string|max:20',
+                'tanggal_lahir' => 'nullable|date',
                 'roles' => 'nullable|array',
                 'roles.*' => 'exists:roles,name',
             ]);
@@ -243,6 +244,7 @@ class UserController extends Controller
                 'password' => 'nullable|string|min:8',
                 'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
                 'no_telp' => 'nullable|string|max:20',
+                'tanggal_lahir' => 'nullable|date',
                 'roles' => 'array',
                 'roles.*' => 'exists:roles,name',
             ]);

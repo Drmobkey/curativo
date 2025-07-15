@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('jenis_kelamin')->nullable();
             $table->string('no_telp')->nullable();
+            $table->date('tanggal_lahir')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

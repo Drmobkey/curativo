@@ -22,6 +22,7 @@ class UserFactory extends Factory
             'password' => bcrypt('password123'),
             'jenis_kelamin' => $faker->randomElement(['Laki-laki', 'Perempuan']),
             'no_telp' => $faker->phoneNumber(),
+            'tanggal_lahir' => $faker->date(),
         ];
     }
 

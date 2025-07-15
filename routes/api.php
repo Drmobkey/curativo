@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Exceptions\RoleAlreadyExists;
 
 
-require __DIR__.'/auth.php';
-Route::middleware(['auth:sanctum','verified'])->get('/user', function (Request $request) {
+require __DIR__ . '/auth.php';
+Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -33,8 +33,8 @@ Route::middleware(['auth:sanctum', 'role:user'])->prefix('user')->group(function
         Route::get('/{id}', [ArticleAdminController::class, 'show']);
     });
     Route::prefix('profile')->group(function () {
-         Route::get('/{id}', [ProfileController::class, 'show']);
-         Route::put('/{id}', [ProfileController::class, 'update']);
+        Route::get('/{id}', [ProfileController::class, 'show']);
+        Route::put('/{id}', [ProfileController::class, 'update']);
     });
 });
 
@@ -61,8 +61,8 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
     Route::apiResource('/category', CategoryController::class);
     Route::apiResource('/tags', TagsController::class);
     Route::prefix('profile')->group(function () {
-         Route::get('/{id}', [ProfileController::class, 'show']);
-         Route::put('/{id}', [ProfileController::class, 'update']);
+        Route::get('/{id}', [ProfileController::class, 'show']);
+        Route::put('/{id}', [ProfileController::class, 'update']);
     });
 
 });
