@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
 
 class InjuryHistory extends Model
 {
-    use HasFactory,HasRoles;  // Remove HasUuids
+    use HasFactory,HasRoles,HasUuids;  // Remove HasUuids
 
     protected $table = "InjuryHistory";
     protected $fillable = [
@@ -18,6 +19,7 @@ class InjuryHistory extends Model
         'detected_at',
         'notes',
         'location',
+        'scores',
         'created_by',
         'updated_by'
     ];

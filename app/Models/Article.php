@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
@@ -10,7 +11,7 @@ class Article extends Model
 {
     //
 
-    use HasFactory,HasRoles;
+    use HasFactory,HasRoles, HasUuids;
     protected $table = "articles";
     protected $fillable = [
         'title',

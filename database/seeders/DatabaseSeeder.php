@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             // UserSeeder::class,
             // InjuryHistorySeeder::class,
             // TagsSeeder::class,
-            CategorySeeder::class,
+            // CategorySeeder::class,
             ArticleSeeder::class,
         ]);
     }

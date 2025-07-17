@@ -22,17 +22,19 @@ class InjuryHistoryFactory extends Factory
         }
 
         return [
-            'id' => Str::uuid(),
-            'user_id' => $user->id,
-            'label' => $faker->word(), 
-            'image' => $this->faker->imageUrl(),
-            'location' => $faker->address(),  
-            'notes' => $faker->text(200), 
-            'detected_at' => $faker->dateTimeThisYear(),
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
+        'id' => Str::uuid(),
+        'user_id' => $user->id,
+        'label' => $faker->randomElement(['Luka Bakar', 'Luka Sayat', 'Luka Gores', 'Luka Lebam']),
+        'image' => $faker->imageUrl(640, 480, 'medical', true),
+        'location' => $faker->address(),
+        'notes' => $faker->sentence(10),
+        'detected_at' => $faker->dateTimeBetween('-6 months', 'now'),
+        'scores' => $faker->randomFloat(2, 0, 1), // nilai antara 0.00 - 1.00
+
+        'created_by' => $user->id,
+        'updated_by' => $user->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ];
     }
 }

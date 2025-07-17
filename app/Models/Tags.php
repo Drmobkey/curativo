@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
@@ -9,7 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 class Tags extends Model
 {
     //
-    use HasFactory,HasRoles;
+    use HasFactory,HasRoles, HasUuids;
     protected $table = "tags";
     protected $fillable = [
         'name',
