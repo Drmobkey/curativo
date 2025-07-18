@@ -32,13 +32,24 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->string('password')),
             'jenis_kelamin' => $request->jenis_kelamin,
             'no_telp' => $request->no_telp,
-            'email_verified_at' => now(), 
+            'email_verified_at' => now(),
         ]);
 
         $user->assignRole('user');
 
         event(new Registered($user));
         Auth::login($user);
+
+        return response()->json([
+            'token' => $user->createToken('auth_token')->plainTextToken,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->getRoleNames()->first(),
+            ]
+        ], 200);
+
 
         // Buat link verifikasi email manual (gunakan signed route jika perlu)
         // $link = URL::temporarySignedRoute(
