@@ -18,12 +18,13 @@ return new class extends Migration
             $table->text('image')->nullable();
             $table->text('location')->nullable();
             $table->text('notes')->nullable();
+            $table->text('recommendation')->nullable();
             $table->dateTime('detected_at');
             $table->double('scores')->nullable();
             $table->uuid('created_by');  // Change to foreignId
             $table->uuid('updated_by');
             $table->timestamps();
-            
+
             $table->foreign('created_by')->references('id')->on('users');  // Change to foreignId
             $table->foreign('updated_by')->references('id')->on('users');  // Change to foreignId
             $table->foreign('user_id')->references('id')->on('users');  // Change to foreignId

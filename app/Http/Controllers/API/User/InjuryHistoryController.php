@@ -12,7 +12,6 @@ class InjuryHistoryController extends Controller
     public function index(Request $request)
     {
         try {
-            
             $history = InjuryHistory::where("user_id", $request->user()->id)
                 ->latest()
                 ->paginate(15);
@@ -50,7 +49,8 @@ class InjuryHistoryController extends Controller
                 'detected_at' => 'required|date',
                 'notes' => 'nullable|string',
                 'location' => 'nullable|string',
-                'scores' => 'nullable|numeric'
+                'scores' => 'nullable|numeric',
+                'recommendation' => 'nullable|string'
             ]);
 
             $validated['user_id'] = $request->user()->id;
@@ -108,6 +108,7 @@ class InjuryHistoryController extends Controller
                 'notes' => 'nullable|string',
                 'location' => 'nullable|string',
                 'scores' => 'nullable|numeric',
+                'recommendation' => 'nullable|string'
             ]);
 
             $validated['updated_by'] = auth()->id();

@@ -18,6 +18,7 @@ class InjuryHistory extends Model
         'image',
         'detected_at',
         'notes',
+        'reccomendation',
         'location',
         'scores',
         'created_by',

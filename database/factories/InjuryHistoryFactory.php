@@ -28,6 +28,7 @@ class InjuryHistoryFactory extends Factory
         'image' => $faker->imageUrl(640, 480, 'medical', true),
         'location' => $faker->address(),
         'notes' => $faker->sentence(10),
+        'recommendation' => $faker->text(),
         'detected_at' => $faker->dateTimeBetween('-6 months', 'now'),
         'scores' => $faker->randomFloat(2, 0, 1), // nilai antara 0.00 - 1.00
 
