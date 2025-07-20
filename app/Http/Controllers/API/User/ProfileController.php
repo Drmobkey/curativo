@@ -28,6 +28,7 @@ class ProfileController extends Controller
                 "status" => true,
                 "message" => "Profil user berhasil dimuat",
                 "data" => [
+                    "id" => $user->id,
                     "name" => $user->name,
                     "email" => $user->email,
                     "jenis_kelamin" => $user->jenis_kelamin,

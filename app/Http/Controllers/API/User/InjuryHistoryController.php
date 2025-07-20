@@ -19,7 +19,7 @@ class InjuryHistoryController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Riwayat luka berhasil diambil',
-                'data' => $history->items(),
+                'data' => collect($history->items())->map->makeHidden('imaage'),
                 'pagination' => [
                     'total' => $history->total(),
                     'current_page' => $history->currentPage(),
@@ -62,7 +62,7 @@ class InjuryHistoryController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Riwayat luka berhasil ditambahkan',
-                'data' => $history,
+                'data' => $history->makeHidden('image'),
             ], 201);
         } catch (\Exception $e) {
             Log::error('Store Error: ' . $e->getMessage());
